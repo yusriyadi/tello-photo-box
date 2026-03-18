@@ -1,6 +1,6 @@
 import { renderPhotostrip } from "./photostrip.js";
-import { getSession } from "./state.js";
-import { getTemplateById, renderTemplatePicker } from "./templates.js";
+import { getSession, setTemplate } from "./state.js";
+import { getTemplateById, getTemplates, renderTemplatePicker } from "./templates.js";
 import { downloadDataUrl, formatSessionDate } from "./utils.js";
 
 const resultCanvas = document.querySelector("#resultCanvas");
@@ -11,6 +11,7 @@ const resultFrame = document.querySelector("#resultFrame");
 const resultEventName = document.querySelector("#resultEventName");
 const resultTemplateGrid = document.querySelector("#resultTemplateGrid");
 const resultSelectedTemplateName = document.querySelector("#resultSelectedTemplateName");
+const randomizeTemplateButton = document.querySelector("#randomizeTemplateButton");
 
 let session = getSession();
 
@@ -24,6 +25,13 @@ if (!session.photos.length) {
   applyTemplateTheme(template);
   renderSessionMeta();
   renderResult();
+
+  randomizeTemplateButton.addEventListener("click", async () => {
+    const nextTemplateId = pickRandomTemplateId(template.id);
+    setTemplate(nextTemplateId);
+    await handleTemplateChange(nextTemplateId);
+    renderTemplatePicker(resultTemplateGrid, resultSelectedTemplateName, handleTemplateChange);
+  });
 
   downloadButton.addEventListener("click", () => {
     if (!exportDataUrl) {
@@ -121,4 +129,10 @@ function buildFilename(eventName, templateId) {
     .replace(/^-+|-+$/g, "");
 
   return `${eventSlug || "photostrip"}-${templateId}.png`;
+}
+
+function pickRandomTemplateId(currentTemplateId) {
+  const availableTemplates = getTemplates().filter((template) => template.id !== currentTemplateId);
+  const randomIndex = Math.floor(Math.random() * availableTemplates.length);
+  return availableTemplates[randomIndex]?.id ?? currentTemplateId;
 }

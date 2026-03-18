@@ -163,9 +163,22 @@ body.result-themed .button-secondary {
   margin-bottom: 14px;
 }
 
+.section-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .section-heading span {
   color: var(--muted);
   font-size: 0.95rem;
+}
+
+.button-compact {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 0.84rem;
 }
 
 .template-grid {
@@ -354,6 +367,17 @@ body.result-themed .button-secondary {
 @media (max-width: 680px) {
   .template-row {
     grid-auto-columns: minmax(148px, 72%);
+  }
+
+  .result-template-panel .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .section-heading-actions {
+    width: 100%;
+    justify-content: space-between;
   }
 }
 
