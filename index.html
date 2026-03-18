@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tello Photo Box</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/base.css" />
+    <link rel="stylesheet" href="./css/layout.css" />
+    <link rel="stylesheet" href="./css/components.css" />
+    <link rel="stylesheet" href="./css/pages.css" />
+  </head>
+  <body>
+    <main class="app-shell booth-page">
+      <section class="hero-panel">
+        <p class="eyebrow">Tello Photobox</p>
+        <h1>Build a photostrip that feels like an event booth.</h1>
+        <p class="hero-copy">
+          Pilih template, nyalakan kamera, lalu biarkan app mengambil empat
+          foto secara otomatis dengan countdown.
+        </p>
+
+        <div class="hero-actions">
+          <button class="button button-primary" id="startSessionButton">
+            Start Session
+          </button>
+          <button class="button button-secondary" id="retakeButton" type="button">
+            Reset
+          </button>
+        </div>
+
+        <div class="template-panel">
+          <div class="section-heading">
+            <h2>Choose Template</h2>
+            <span id="selectedTemplateName">Classic</span>
+          </div>
+          <div class="template-grid" id="templateGrid"></div>
+        </div>
+
+        <div class="shot-plan">
+          <div>
+            <span class="shot-label">Shots</span>
+            <strong>4 Frames</strong>
+          </div>
+          <div>
+            <span class="shot-label">Output</span>
+            <strong>Vertical Strip</strong>
+          </div>
+          <div>
+            <span class="shot-label">Export</span>
+            <strong>PNG Download</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="camera-panel">
+        <div class="camera-stage">
+          <video id="cameraFeed" autoplay playsinline muted></video>
+          <div class="camera-overlay">
+            <div class="status-pill" id="cameraStatus">Camera idle</div>
+            <div class="countdown-badge is-hidden" id="countdownBadge">3</div>
+          </div>
+          <div class="camera-empty" id="cameraEmptyState">
+            <p>Tekan Start Session untuk menyalakan webcam.</p>
+          </div>
+        </div>
+
+        <div class="camera-toolbar">
+          <button class="button button-primary" id="captureButton" type="button">
+            Capture Strip
+          </button>
+          <button class="button button-secondary" id="resultButton" type="button">
+            View Result
+          </button>
+        </div>
+
+        <div class="thumb-strip" id="capturedThumbs"></div>
+      </section>
+    </main>
+
+    <canvas id="captureCanvas" class="sr-only"></canvas>
+
+    <script type="module" src="./js/app.js"></script>
+  </body>
+</html>

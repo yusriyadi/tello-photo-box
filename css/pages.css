@@ -1,0 +1,94 @@
+.booth-page .hero-panel,
+.booth-page .camera-panel {
+  min-height: calc(100dvh - 32px);
+}
+
+.booth-page .hero-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.camera-stage {
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+  height: min(64dvh, 680px);
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(180deg, rgba(12, 10, 9, 0.1), rgba(12, 10, 9, 0.38)),
+    #1b1714;
+}
+
+#cameraFeed {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+.camera-overlay {
+  position: absolute;
+  inset: 0;
+  padding: 18px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.camera-empty {
+  position: absolute;
+  inset: auto 18px 18px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  color: #fff;
+  background: rgba(16, 14, 11, 0.54);
+}
+
+.camera-empty.is-hidden {
+  display: none;
+}
+
+.camera-toolbar {
+  margin-top: 12px;
+}
+
+.strip-frame {
+  display: flex;
+  justify-content: center;
+  padding: 18px;
+  border-radius: var(--radius-xl);
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.84), transparent 28%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.38));
+}
+
+body.result-themed .strip-frame {
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--result-accent) 12%, white), transparent 28%),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--result-panel) 88%, white),
+      color-mix(in srgb, var(--result-bg) 64%, white)
+    );
+}
+
+#resultCanvas {
+  width: min(100%, 420px);
+  height: auto;
+  border-radius: 22px;
+  box-shadow: 0 20px 36px rgba(42, 28, 17, 0.16);
+}
+
+@media (max-width: 980px) {
+  .booth-page .hero-panel,
+  .booth-page .camera-panel {
+    min-height: auto;
+  }
+
+  .camera-stage {
+    height: min(58dvh, 560px);
+  }
+}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Photostrip Result</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/base.css" />
+    <link rel="stylesheet" href="./css/layout.css" />
+    <link rel="stylesheet" href="./css/components.css" />
+    <link rel="stylesheet" href="./css/pages.css" />
+  </head>
+  <body>
+    <main class="app-shell result-page">
+      <section class="result-summary" id="resultSummary">
+        <p class="eyebrow">Session Result</p>
+        <h1>Your photostrip is ready.</h1>
+        <p class="hero-copy">
+          Download hasil akhir atau kembali ke booth untuk ambil ulang dengan
+          template lain.
+        </p>
+
+        <div class="hero-actions">
+          <a class="button button-secondary" href="./index.html">Retake Session</a>
+          <button class="button button-primary" id="downloadButton" type="button">
+            Download PNG
+          </button>
+        </div>
+
+        <div class="session-meta" id="sessionMeta"></div>
+      </section>
+
+      <section class="result-preview">
+        <div class="strip-frame" id="resultFrame">
+          <canvas id="resultCanvas" width="900" height="1600"></canvas>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./js/result.js"></script>
+  </body>
+</html>
