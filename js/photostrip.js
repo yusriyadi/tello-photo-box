@@ -8,7 +8,6 @@ export async function renderPhotostrip({ canvas, photos, template, createdAt }) 
   const gap = 24;
   const headerHeight = 140;
   const footerHeight = 120;
-  const frameHeight = (height - headerHeight - footerHeight - margin * 2 - gap * 3) / 4;
 
   context.clearRect(0, 0, width, height);
   context.fillStyle = template.background;
@@ -37,7 +36,6 @@ export async function renderPhotostrip({ canvas, photos, template, createdAt }) 
     gap,
     headerHeight,
     footerHeight,
-    frameHeight,
   });
 
   context.fillStyle = template.accentColor;
@@ -61,76 +59,96 @@ function drawFramesByLayout({
   gap,
   headerHeight,
   footerHeight,
-  frameHeight,
 }) {
   const availableWidth = width - margin * 2;
   const startY = margin + headerHeight;
-  const bottomLimit = height - margin - footerHeight;
+  const framesHeight = height - startY - footerHeight - margin;
+  const frameRects = getFrameRects(template.layout, availableWidth, framesHeight, gap);
 
-  if (template.layout === "stackedHero") {
-    const heroHeight = 240;
-    const rowHeight = 250;
-    const footerFrameHeight = Math.max(0, bottomLimit - (startY + heroHeight + gap + rowHeight + gap));
-    drawCoverImage(context, images[0], margin, startY, availableWidth, heroHeight);
-    drawCoverImage(context, images[1], margin, startY + heroHeight + gap, (availableWidth - gap) / 2, rowHeight);
+  frameRects.forEach((rect, index) => {
+    if (!images[index]) {
+      return;
+    }
+
     drawCoverImage(
       context,
-      images[2],
-      margin + (availableWidth + gap) / 2,
-      startY + heroHeight + gap,
-      (availableWidth - gap) / 2,
-      rowHeight
+      images[index],
+      margin + rect.x,
+      startY + rect.y,
+      rect.width,
+      rect.height
     );
-    drawCoverImage(context, images[3], margin, startY + heroHeight + gap + rowHeight + gap, availableWidth, footerFrameHeight);
-    return;
-  }
-
-  if (template.layout === "duoSplit") {
-    const topHeight = 390;
-    const bottomHeight = Math.max(0, bottomLimit - (startY + topHeight + gap));
-    drawCoverImage(context, images[0], margin, startY, (availableWidth - gap) / 2, topHeight);
-    drawCoverImage(
-      context,
-      images[1],
-      margin + (availableWidth + gap) / 2,
-      startY,
-      (availableWidth - gap) / 2,
-      topHeight
-    );
-    drawCoverImage(context, images[2], margin, startY + topHeight + gap, (availableWidth - gap) / 2, bottomHeight);
-    drawCoverImage(
-      context,
-      images[3],
-      margin + (availableWidth + gap) / 2,
-      startY + topHeight + gap,
-      (availableWidth - gap) / 2,
-      bottomHeight
-    );
-    return;
-  }
-
-  if (template.layout === "postcard") {
-    const topHeight = 220;
-    const middleHeight = 260;
-    const bottomHeight = Math.max(0, bottomLimit - (startY + topHeight + gap + middleHeight + gap));
-    drawCoverImage(context, images[0], margin, startY, availableWidth, topHeight);
-    drawCoverImage(context, images[1], margin, startY + topHeight + gap, availableWidth, middleHeight);
-    drawCoverImage(context, images[2], margin, startY + topHeight + gap + middleHeight + gap, (availableWidth - gap) / 2, bottomHeight);
-    drawCoverImage(
-      context,
-      images[3],
-      margin + (availableWidth + gap) / 2,
-      startY + topHeight + gap + middleHeight + gap,
-      (availableWidth - gap) / 2,
-      bottomHeight
-    );
-    return;
-  }
-
-  images.forEach((image, index) => {
-    const y = startY + index * (frameHeight + gap);
-    drawCoverImage(context, image, margin, y, availableWidth, frameHeight);
   });
+}
+
+function getFrameRects(layout, width, height, gap) {
+  const halfWidth = (width - gap) / 2;
+  const oneThirdWidth = (width - gap * 2) / 3;
+  const halfHeight = (height - gap) / 2;
+
+  const layouts = {
+    stackedHero: [
+      { x: 0, y: 0, width, height: 235 },
+      { x: 0, y: 259, width: halfWidth, height: 215 },
+      { x: halfWidth + gap, y: 259, width: halfWidth, height: 215 },
+      { x: 0, y: 498, width, height: height - 498 },
+    ],
+    duoSplit: [
+      { x: 0, y: 0, width: halfWidth, height: 360 },
+      { x: halfWidth + gap, y: 0, width: halfWidth, height: 360 },
+      { x: 0, y: 384, width: halfWidth, height: height - 384 },
+      { x: halfWidth + gap, y: 384, width: halfWidth, height: height - 384 },
+    ],
+    postcard: [
+      { x: 0, y: 0, width, height: 190 },
+      { x: 0, y: 214, width, height: 225 },
+      { x: 0, y: 463, width: halfWidth, height: height - 463 },
+      { x: halfWidth + gap, y: 463, width: halfWidth, height: height - 463 },
+    ],
+    leftHero: [
+      { x: 0, y: 0, width: width * 0.56, height: height * 0.66 },
+      { x: width * 0.56 + gap, y: 0, width: width * 0.44 - gap, height: height * 0.31 },
+      { x: width * 0.56 + gap, y: height * 0.31 + gap, width: width * 0.44 - gap, height: height * 0.35 - gap },
+      { x: 0, y: height * 0.66 + gap, width, height: height * 0.34 - gap },
+    ],
+    quadMix: [
+      { x: 0, y: 0, width: halfWidth, height: halfHeight },
+      { x: halfWidth + gap, y: 0, width: halfWidth, height: halfHeight * 0.78 },
+      { x: halfWidth + gap, y: halfHeight * 0.78 + gap, width: halfWidth, height: height - (halfHeight * 0.78 + gap) },
+      { x: 0, y: halfHeight + gap, width: halfWidth, height: height - (halfHeight + gap) },
+    ],
+    ribbonTop: [
+      { x: 0, y: 0, width, height: 145 },
+      { x: 0, y: 169, width: halfWidth, height: 255 },
+      { x: halfWidth + gap, y: 169, width: halfWidth, height: 255 },
+      { x: 0, y: 448, width, height: height - 448 },
+    ],
+    centerStage: [
+      { x: oneThirdWidth * 0.18, y: 0, width: width - oneThirdWidth * 0.36, height: 205 },
+      { x: 0, y: 229, width: halfWidth, height: 190 },
+      { x: halfWidth + gap, y: 229, width: halfWidth, height: 190 },
+      { x: 0, y: 443, width, height: height - 443 },
+    ],
+    tallCard: [
+      { x: 0, y: 0, width, height: 325 },
+      { x: 0, y: 349, width: halfWidth, height: 170 },
+      { x: halfWidth + gap, y: 349, width: halfWidth, height: 170 },
+      { x: 0, y: 543, width, height: height - 543 },
+    ],
+    offsetGrid: [
+      { x: oneThirdWidth * 0.42, y: 0, width: width - oneThirdWidth * 0.42, height: 190 },
+      { x: 0, y: 214, width: halfWidth, height: 210 },
+      { x: halfWidth + gap, y: 214, width: halfWidth, height: 210 },
+      { x: 0, y: 448, width: width * 0.72, height: height - 448 },
+    ],
+  };
+
+  return (layouts[layout] ?? layouts.stackedHero).map((rect) => ({
+    x: Math.round(rect.x),
+    y: Math.round(rect.y),
+    width: Math.round(rect.width),
+    height: Math.max(120, Math.round(rect.height)),
+  }));
 }
 
 function roundRect(context, x, y, width, height, radius) {

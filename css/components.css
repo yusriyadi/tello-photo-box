@@ -115,31 +115,13 @@ body.result-themed .button-secondary {
 }
 
 .template-grid {
-  display: grid;
-  gap: 14px;
-}
-
-.template-group {
   min-width: 0;
-  width: 100%;
-}
-
-.template-group-heading {
-  margin-bottom: 8px;
-  padding-left: 2px;
-}
-
-.template-group-heading strong {
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
 }
 
 .template-row {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(126px, 126px);
+  grid-auto-columns: calc((100% - 30px) / 4);
   gap: 10px;
   overflow-x: auto;
   overflow-y: hidden;
@@ -233,6 +215,42 @@ body.result-themed .button-secondary {
   flex: 1.25;
 }
 
+.template-preview-row-asym {
+  display: grid;
+  grid-template-columns: 1.18fr 0.82fr;
+  gap: 4px;
+  flex: 1;
+}
+
+.template-preview-grid-side {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.template-preview-grid-quad {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  flex: 1;
+}
+
+.template-preview-grid-offset {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.template-preview-frame-ribbon {
+  flex: 0.55;
+}
+
+.template-preview-frame-offset {
+  width: 72%;
+}
+
 .template-meta {
   margin-top: 8px;
 }
@@ -257,6 +275,18 @@ body.result-themed .button-secondary {
   display: block;
   font-size: 0.77rem;
   line-height: 1.3;
+}
+
+@media (max-width: 980px) {
+  .template-row {
+    grid-auto-columns: calc((100% - 10px) / 2);
+  }
+}
+
+@media (max-width: 680px) {
+  .template-row {
+    grid-auto-columns: minmax(148px, 72%);
+  }
 }
 
 .shot-plan {
