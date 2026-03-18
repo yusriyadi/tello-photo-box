@@ -33,11 +33,31 @@
             </button>
           </div>
 
+          <div class="session-meta" id="sessionMeta">
           <p class="result-event-name" id="resultEventName"></p>
-          <div class="session-meta" id="sessionMeta"></div>
+          </div>
           <div class="result-inline-preview">
-            <div class="strip-frame" id="resultFrame">
-              <canvas id="resultCanvas" width="900" height="1600"></canvas>
+            <div class="result-carousel" id="resultCarousel">
+              <div class="result-carousel-header">
+                <p class="eyebrow result-carousel-eyebrow">Template Preview</p>
+                <div class="result-carousel-actions">
+                  <button class="result-carousel-nav" id="resultPrevButton" type="button" aria-label="Previous template">
+                    Prev
+                  </button>
+                  <button class="result-carousel-nav" id="resultNextButton" type="button" aria-label="Next template">
+                    Next
+                  </button>
+                </div>
+              </div>
+              <div class="result-carousel-viewport" id="resultViewport">
+                <div class="result-carousel-track" id="resultTrack"></div>
+              </div>
+              <div class="result-carousel-footer">
+                <p class="result-carousel-caption">
+                  Geser untuk lihat hasil semua template, lalu download yang paling cocok.
+                </p>
+                <div class="result-carousel-dots" id="resultDots"></div>
+              </div>
             </div>
           </div>
         </section>

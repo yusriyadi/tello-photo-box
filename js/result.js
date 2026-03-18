@@ -1,38 +1,62 @@
 import { renderPhotostrip } from "./photostrip.js";
-import { getSession } from "./state.js";
-import { getTemplateById } from "./templates.js";
+import { getSession, setTemplate } from "./state.js";
+import { getTemplateById, getTemplates } from "./templates.js";
 import { downloadDataUrl, formatSessionDate } from "./utils.js";
 
-const resultCanvas = document.querySelector("#resultCanvas");
 const downloadButton = document.querySelector("#downloadButton");
 const sessionMeta = document.querySelector("#sessionMeta");
 const resultSummary = document.querySelector("#resultSummary");
-const resultFrame = document.querySelector("#resultFrame");
 const resultEventName = document.querySelector("#resultEventName");
+const resultTrack = document.querySelector("#resultTrack");
+const resultDots = document.querySelector("#resultDots");
+const resultPrevButton = document.querySelector("#resultPrevButton");
+const resultNextButton = document.querySelector("#resultNextButton");
 
 let session = getSession();
+const templates = getTemplates();
 
 if (!session.photos.length) {
   window.location.href = "./index.html";
 } else {
-  let template = getTemplateById(session.templateId);
+  let activeTemplateId = getTemplateById(session.templateId).id;
   let exportDataUrl = "";
+  let previewItems = [];
+  let activeIndex = 0;
 
-  applyTemplateTheme(template);
-  renderSessionMeta();
-  renderResult();
+  buildCarousel();
+  syncActiveTemplate(activeTemplateId, { scroll: false });
 
   downloadButton.addEventListener("click", () => {
     if (!exportDataUrl) {
       return;
     }
 
-    downloadDataUrl(buildFilename(session.eventName, template.id), exportDataUrl);
+    downloadDataUrl(buildFilename(session.eventName, activeTemplateId), exportDataUrl);
   });
 
-  async function renderResult() {
+  resultPrevButton.addEventListener("click", () => {
+    syncActiveIndex(Math.max(activeIndex - 1, 0));
+  });
+
+  resultNextButton.addEventListener("click", () => {
+    syncActiveIndex(Math.min(activeIndex + 1, previewItems.length - 1));
+  });
+
+  resultTrack.addEventListener("scroll", () => {
+    window.clearTimeout(resultTrack._scrollTimer);
+    resultTrack._scrollTimer = window.setTimeout(() => {
+      const nextIndex = findNearestSlideIndex();
+      if (nextIndex !== activeIndex) {
+        syncActiveIndex(nextIndex, { scroll: false });
+      } else {
+        updateCarouselState();
+      }
+    }, 70);
+  });
+
+  async function renderResult(template, canvas) {
     exportDataUrl = await renderPhotostrip({
-      canvas: resultCanvas,
+      canvas,
       photos: session.photos,
       template,
       createdAt: session.createdAt,
@@ -40,7 +64,7 @@ if (!session.photos.length) {
     });
   }
 
-  function renderSessionMeta() {
+  function renderSessionMeta(template) {
     sessionMeta.innerHTML = `
       <div>
         <span>Event</span>
@@ -58,6 +82,135 @@ if (!session.photos.length) {
 
     resultEventName.textContent = session.eventName || "Photostrip export ready";
   }
+
+  function buildCarousel() {
+    resultTrack.innerHTML = templates
+      .map((template) => {
+        return `
+          <article class="result-slide" data-template-id="${template.id}">
+            <div class="strip-frame result-slide-frame">
+              <canvas class="result-slide-canvas" width="900" height="1600"></canvas>
+            </div>
+            <div class="result-slide-meta">
+              <strong>${template.name}</strong>
+              <span>${template.subtitle}</span>
+            </div>
+          </article>
+        `;
+      })
+      .join("");
+
+    resultDots.innerHTML = templates
+      .map(
+        (template, index) => `
+          <button
+            class="result-dot"
+            data-slide-index="${index}"
+            type="button"
+            aria-label="Preview ${template.name}"
+          ></button>
+        `
+      )
+      .join("");
+
+    previewItems = [...resultTrack.querySelectorAll(".result-slide")].map((slide, index) => {
+      const template = templates[index];
+      const canvas = slide.querySelector("canvas");
+
+      slide.addEventListener("click", () => {
+        syncActiveIndex(index);
+      });
+
+      return { slide, canvas, template };
+    });
+
+    resultDots.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-slide-index]");
+      if (!button) {
+        return;
+      }
+
+      syncActiveIndex(Number(button.dataset.slideIndex));
+    });
+
+    previewItems.forEach(({ template, canvas }) => {
+      renderResult(template, canvas);
+    });
+  }
+
+  function syncActiveTemplate(templateId, options = {}) {
+    const nextIndex = templates.findIndex((template) => template.id === templateId);
+    syncActiveIndex(nextIndex >= 0 ? nextIndex : 0, options);
+  }
+
+  function syncActiveIndex(index, options = {}) {
+    const { scroll = true } = options;
+    activeIndex = index;
+    const activeItem = previewItems[activeIndex];
+    const template = activeItem.template;
+
+    activeTemplateId = template.id;
+    setTemplate(template.id);
+    session = getSession();
+
+    applyTemplateTheme(template);
+    renderSessionMeta(template);
+    updateCarouselState();
+
+    if (scroll) {
+      activeItem.slide.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+        block: "nearest",
+      });
+    }
+
+    renderResult(template, createExportCanvas()).then((dataUrl) => {
+      exportDataUrl = dataUrl;
+    });
+  }
+
+  function updateCarouselState() {
+    previewItems.forEach(({ slide, template }, index) => {
+      const isActive = index === activeIndex;
+      slide.classList.toggle("is-active", isActive);
+      slide.setAttribute("aria-current", String(isActive));
+      slide.querySelector(".result-slide-frame").style.borderColor = isActive
+        ? mixColor(template.accentColor, "#ffffff", 0.48)
+        : mixColor(template.accentColor, "#ffffff", 0.74);
+    });
+
+    resultDots.querySelectorAll(".result-dot").forEach((dot, index) => {
+      dot.classList.toggle("is-active", index === activeIndex);
+    });
+
+    resultPrevButton.disabled = activeIndex === 0;
+    resultNextButton.disabled = activeIndex === previewItems.length - 1;
+  }
+
+  function findNearestSlideIndex() {
+    const viewportCenter = resultTrack.scrollLeft + resultTrack.clientWidth / 2;
+    let nearestIndex = activeIndex;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+
+    previewItems.forEach(({ slide }, index) => {
+      const slideCenter = slide.offsetLeft + slide.clientWidth / 2;
+      const distance = Math.abs(slideCenter - viewportCenter);
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestIndex = index;
+      }
+    });
+
+    return nearestIndex;
+  }
+}
+
+function createExportCanvas() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 900;
+  canvas.height = 1600;
+  return canvas;
 }
 
 function applyTemplateTheme(template) {
@@ -71,7 +224,6 @@ function applyTemplateTheme(template) {
   document.body.style.setProperty("--result-muted", mixColor(template.textColor, "#ffffff", 0.56));
 
   resultSummary.style.borderColor = mixColor(template.accentColor, "#ffffff", 0.72);
-  resultFrame.style.border = `1px solid ${mixColor(template.accentColor, "#ffffff", 0.66)}`;
 }
 
 function mixColor(hexA, hexB, weight = 0.5) {
