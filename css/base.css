@@ -44,6 +44,7 @@ body {
   background:
     radial-gradient(circle at top left, rgba(255, 255, 255, 0.82), transparent 30%),
     linear-gradient(135deg, var(--bg), var(--bg-accent));
+  overflow-x: hidden;
 }
 
 body.result-themed {

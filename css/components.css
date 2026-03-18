@@ -47,6 +47,10 @@ h2 {
   flex-wrap: wrap;
 }
 
+.camera-panel .camera-toolbar {
+  margin-left: 12px;
+}
+  
 .hero-actions {
   margin-top: 18px;
 }
@@ -391,6 +395,8 @@ body.result-themed .session-meta > div {
 
 .thumb-strip {
   margin-top: 12px;
+  margin-left: 12px;
+  margin-right: 12px;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
