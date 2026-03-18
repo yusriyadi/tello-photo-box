@@ -10,6 +10,30 @@
   overflow: hidden;
 }
 
+body.is-kiosk .app-shell {
+  width: min(100vw - 24px, 1480px);
+  padding: 12px 0;
+}
+
+body.is-kiosk .booth-page {
+  grid-template-columns: 0.74fr 1.26fr;
+  gap: 16px;
+}
+
+body.is-kiosk .hero-copy,
+body.is-kiosk .shot-plan {
+  display: none;
+}
+
+body.is-kiosk .hero-panel,
+body.is-kiosk .camera-panel {
+  min-height: calc(100dvh - 24px);
+}
+
+body.is-kiosk .camera-stage {
+  height: min(74dvh, 840px);
+}
+
 .camera-stage {
   position: relative;
   overflow: hidden;

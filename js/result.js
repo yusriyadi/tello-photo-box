@@ -1,6 +1,6 @@
 import { renderPhotostrip } from "./photostrip.js";
 import { getSession } from "./state.js";
-import { getTemplateById } from "./templates.js";
+import { getTemplateById, renderTemplatePicker } from "./templates.js";
 import { downloadDataUrl, formatSessionDate } from "./utils.js";
 
 const resultCanvas = document.querySelector("#resultCanvas");
@@ -8,15 +8,19 @@ const downloadButton = document.querySelector("#downloadButton");
 const sessionMeta = document.querySelector("#sessionMeta");
 const resultSummary = document.querySelector("#resultSummary");
 const resultFrame = document.querySelector("#resultFrame");
+const resultEventName = document.querySelector("#resultEventName");
+const resultTemplateGrid = document.querySelector("#resultTemplateGrid");
+const resultSelectedTemplateName = document.querySelector("#resultSelectedTemplateName");
 
-const session = getSession();
+let session = getSession();
 
 if (!session.photos.length) {
   window.location.href = "./index.html";
 } else {
-  const template = getTemplateById(session.templateId);
+  let template = getTemplateById(session.templateId);
   let exportDataUrl = "";
 
+  renderTemplatePicker(resultTemplateGrid, resultSelectedTemplateName, handleTemplateChange);
   applyTemplateTheme(template);
   renderSessionMeta();
   renderResult();
@@ -26,7 +30,7 @@ if (!session.photos.length) {
       return;
     }
 
-    downloadDataUrl(`photostrip-${template.id}.png`, exportDataUrl);
+    downloadDataUrl(buildFilename(session.eventName, template.id), exportDataUrl);
   });
 
   async function renderResult() {
@@ -35,11 +39,16 @@ if (!session.photos.length) {
       photos: session.photos,
       template,
       createdAt: session.createdAt,
+      eventName: session.eventName,
     });
   }
 
   function renderSessionMeta() {
     sessionMeta.innerHTML = `
+      <div>
+        <span>Event</span>
+        <strong>${session.eventName || "Open Session"}</strong>
+      </div>
       <div>
         <span>Template</span>
         <strong>${template.name}</strong>
@@ -49,6 +58,16 @@ if (!session.photos.length) {
         <strong>${formatSessionDate(session.createdAt)}</strong>
       </div>
     `;
+
+    resultEventName.textContent = session.eventName || "Photostrip export ready";
+  }
+
+  async function handleTemplateChange(templateId) {
+    session = getSession();
+    template = getTemplateById(templateId);
+    applyTemplateTheme(template);
+    renderSessionMeta();
+    await renderResult();
   }
 }
 
@@ -93,4 +112,13 @@ function hexToRgb(hex) {
     g: parseInt(fullHex.slice(2, 4), 16),
     b: parseInt(fullHex.slice(4, 6), 16),
   };
+}
+
+function buildFilename(eventName, templateId) {
+  const eventSlug = (eventName || "photostrip")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return `${eventSlug || "photostrip"}-${templateId}.png`;
 }

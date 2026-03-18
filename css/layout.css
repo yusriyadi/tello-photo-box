@@ -20,10 +20,17 @@
   align-items: center;
 }
 
+.result-sidebar {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
 .hero-panel,
 .camera-panel,
 .result-summary,
-.result-preview {
+.result-preview,
+.result-template-panel {
   background: var(--surface);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.65);
@@ -32,7 +39,8 @@
 }
 
 body.result-themed .result-summary,
-body.result-themed .result-preview {
+body.result-themed .result-preview,
+body.result-themed .result-template-panel {
   background: var(--result-surface);
 }
 
@@ -42,7 +50,8 @@ body.result-themed .result-preview {
 }
 
 .camera-panel,
-.result-preview {
+.result-preview,
+.result-template-panel {
   padding: 18px;
 }
 
@@ -55,5 +64,9 @@ body.result-themed .result-preview {
   .app-shell {
     width: min(100% - 20px, 760px);
     padding: 14px 0 24px;
+  }
+
+  .result-sidebar {
+    gap: 14px;
   }
 }

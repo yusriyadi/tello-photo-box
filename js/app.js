@@ -1,15 +1,19 @@
 import { startCamera, stopCamera } from "./camera.js";
 import { runCountdown } from "./countdown.js";
 import { captureFrame } from "./capture.js";
-import { getSession, resetSession, setPhotos } from "./state.js";
+import { getSession, resetSession, setEventName, setPhotos } from "./state.js";
+import { playCountdownTick, playShutter, primeSound } from "./sound.js";
 import { getTemplateById, renderTemplatePicker } from "./templates.js";
 
 const videoElement = document.querySelector("#cameraFeed");
 const canvasElement = document.querySelector("#captureCanvas");
 const startSessionButton = document.querySelector("#startSessionButton");
+const kioskModeButton = document.querySelector("#kioskModeButton");
 const captureButton = document.querySelector("#captureButton");
+const fullscreenButton = document.querySelector("#fullscreenButton");
 const resultButton = document.querySelector("#resultButton");
 const retakeButton = document.querySelector("#retakeButton");
+const eventNameInput = document.querySelector("#eventNameInput");
 const countdownBadge = document.querySelector("#countdownBadge");
 const cameraStatus = document.querySelector("#cameraStatus");
 const cameraEmptyState = document.querySelector("#cameraEmptyState");
@@ -25,8 +29,11 @@ let cameraReady = false;
 renderTemplatePicker(templateGrid, selectedTemplateName);
 syncSessionPreview();
 syncButtons();
+syncFullscreenState();
 
 startSessionButton.addEventListener("click", async () => {
+  await primeSound();
+
   if (cameraReady) {
     cameraStatus.textContent = "Camera ready";
     return;
@@ -52,6 +59,7 @@ captureButton.addEventListener("click", async () => {
     return;
   }
 
+  await primeSound();
   isCapturing = true;
   syncButtons();
   cameraStatus.textContent = "Capturing strip";
@@ -60,8 +68,11 @@ captureButton.addEventListener("click", async () => {
 
   for (let index = 0; index < TOTAL_SHOTS; index += 1) {
     cameraStatus.textContent = `Shot ${index + 1} of ${TOTAL_SHOTS}`;
-    await runCountdown(countdownBadge, 3);
+    await runCountdown(countdownBadge, 3, () => {
+      playCountdownTick();
+    });
     const photo = captureFrame(videoElement, canvasElement);
+    playShutter();
     capturedPhotos.push(photo);
     renderThumbs(capturedPhotos);
   }
@@ -70,6 +81,9 @@ captureButton.addEventListener("click", async () => {
   cameraStatus.textContent = `Photostrip ready · ${getTemplateById(getSession().templateId).name}`;
   isCapturing = false;
   syncButtons();
+  window.setTimeout(() => {
+    window.location.href = "./result.html";
+  }, 450);
 });
 
 resultButton.addEventListener("click", () => {
@@ -80,9 +94,22 @@ resultButton.addEventListener("click", () => {
   window.location.href = "./result.html";
 });
 
+kioskModeButton.addEventListener("click", async () => {
+  await toggleFullscreen();
+});
+
+fullscreenButton.addEventListener("click", async () => {
+  await toggleFullscreen();
+});
+
+eventNameInput.addEventListener("input", (event) => {
+  setEventName(event.target.value);
+});
+
 retakeButton.addEventListener("click", () => {
   resetSession();
   syncSessionPreview();
+  eventNameInput.value = "";
   cameraStatus.textContent = cameraReady ? "Camera ready" : "Camera idle";
   syncButtons();
 });
@@ -90,6 +117,7 @@ retakeButton.addEventListener("click", () => {
 window.addEventListener("beforeunload", () => {
   stopCamera(videoElement);
 });
+document.addEventListener("fullscreenchange", syncFullscreenState);
 
 function syncButtons() {
   captureButton.disabled = !cameraReady || isCapturing;
@@ -100,6 +128,7 @@ function syncButtons() {
 
 function syncSessionPreview() {
   const session = getSession();
+  eventNameInput.value = session.eventName ?? "";
   renderThumbs(session.photos);
   if (session.photos.length) {
     cameraStatus.textContent = `Photostrip ready · ${getTemplateById(session.templateId).name}`;
@@ -119,4 +148,20 @@ function renderThumbs(photos) {
         )
         .join("")
     : Array.from({ length: TOTAL_SHOTS }, () => '<div class="thumb-card"></div>').join("");
+}
+
+async function toggleFullscreen() {
+  if (document.fullscreenElement) {
+    await document.exitFullscreen();
+    return;
+  }
+
+  await document.documentElement.requestFullscreen();
+}
+
+function syncFullscreenState() {
+  const isFullscreen = Boolean(document.fullscreenElement);
+  document.body.classList.toggle("is-kiosk", isFullscreen);
+  fullscreenButton.textContent = isFullscreen ? "Exit Fullscreen" : "Fullscreen";
+  kioskModeButton.textContent = isFullscreen ? "Exit Kiosk" : "Kiosk Mode";
 }

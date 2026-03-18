@@ -1,6 +1,6 @@
 import { formatSessionDate } from "./utils.js";
 
-export async function renderPhotostrip({ canvas, photos, template, createdAt }) {
+export async function renderPhotostrip({ canvas, photos, template, createdAt, eventName = "" }) {
   const context = canvas.getContext("2d");
   const width = canvas.width;
   const height = canvas.height;
@@ -23,6 +23,13 @@ export async function renderPhotostrip({ canvas, photos, template, createdAt }) 
 
   context.font = '28px "DM Sans"';
   context.fillText(formatSessionDate(createdAt), margin, 132);
+
+  if (eventName) {
+    context.fillStyle = template.accentColor;
+    context.font = '30px "DM Sans"';
+    context.fillText(eventName.toUpperCase(), margin, 170);
+    context.fillStyle = template.textColor;
+  }
 
   const images = await Promise.all(photos.map(loadImage));
 

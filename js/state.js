@@ -1,7 +1,8 @@
 const STORAGE_KEY = "photobox-session";
 
 const defaultSession = {
-  templateId: "classic",
+  templateId: "aurora",
+  eventName: "",
   photos: [],
   createdAt: null,
 };
@@ -32,6 +33,11 @@ export function getSession() {
 
 export function setTemplate(templateId) {
   session.templateId = templateId;
+  persist();
+}
+
+export function setEventName(eventName) {
+  session.eventName = eventName.trim().slice(0, 40);
   persist();
 }
 

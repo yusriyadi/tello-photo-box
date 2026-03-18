@@ -29,15 +29,32 @@
           <button class="button button-primary" id="startSessionButton">
             Start Session
           </button>
+          <button class="button button-secondary" id="kioskModeButton" type="button">
+            Kiosk Mode
+          </button>
           <button class="button button-secondary" id="retakeButton" type="button">
             Reset
           </button>
         </div>
 
+        <div class="event-panel">
+          <label class="field-label" for="eventNameInput">Event Name</label>
+          <div class="event-field">
+            <input
+              class="text-input"
+              id="eventNameInput"
+              type="text"
+              maxlength="40"
+              placeholder="Tello Launch Night"
+            />
+            <p class="field-hint">Akan tampil di hasil export dan nama file download.</p>
+          </div>
+        </div>
+
         <div class="template-panel">
           <div class="section-heading">
             <h2>Choose Template</h2>
-            <span id="selectedTemplateName">Classic</span>
+            <span id="selectedTemplateName">Aurora</span>
           </div>
           <div class="template-grid" id="templateGrid"></div>
         </div>
@@ -73,6 +90,9 @@
         <div class="camera-toolbar">
           <button class="button button-primary" id="captureButton" type="button">
             Capture Strip
+          </button>
+          <button class="button button-secondary" id="fullscreenButton" type="button">
+            Fullscreen
           </button>
           <button class="button button-secondary" id="resultButton" type="button">
             View Result

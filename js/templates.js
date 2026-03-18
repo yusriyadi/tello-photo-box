@@ -9,7 +9,7 @@ export function getTemplateById(id) {
   return templates.find((template) => template.id === id) ?? templates[0];
 }
 
-export function renderTemplatePicker(container, nameElement) {
+export function renderTemplatePicker(container, nameElement, onChange = null) {
   const { templateId } = getSession();
   const existingRow = container.querySelector(".template-row");
   const scrollLeft = existingRow ? existingRow.scrollLeft : 0;
@@ -48,7 +48,10 @@ export function renderTemplatePicker(container, nameElement) {
     button.addEventListener("click", () => {
       const nextTemplateId = button.dataset.templateId;
       setTemplate(nextTemplateId);
-      renderTemplatePicker(container, nameElement);
+      renderTemplatePicker(container, nameElement, onChange);
+      if (onChange) {
+        onChange(nextTemplateId);
+      }
     });
   });
 }
