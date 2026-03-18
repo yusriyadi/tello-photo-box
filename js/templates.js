@@ -11,53 +11,57 @@ export function getTemplateById(id) {
 
 export function renderTemplatePicker(container, nameElement, onChange = null) {
   const { templateId } = getSession();
-  const existingRow = container.querySelector(".template-row");
-  const scrollLeft = existingRow ? existingRow.scrollLeft : 0;
+  if (!container.querySelector(".template-row")) {
+    container.innerHTML = `
+      <div class="template-row">
+        ${templates
+          .map((template) => {
+            return `
+              <button class="template-card" data-template-id="${template.id}" type="button">
+                <div class="template-swatch" style="background:${template.background}; --template-accent:${template.accentColor}; --template-panel:${template.panelColor};">
+                  ${renderPreviewStrip(template.layout)}
+                </div>
+                <div class="template-meta">
+                  <strong>${template.name}</strong>
+                  <span>${template.subtitle}</span>
+                </div>
+              </button>
+            `;
+          })
+          .join("")}
+      </div>
+    `;
 
-  container.innerHTML = `
-    <div class="template-row">
-      ${templates
-        .map((template) => {
-          const activeClass = template.id === templateId ? "is-active" : "";
+    container.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-template-id]");
+      if (!button || !container.contains(button)) {
+        return;
+      }
 
-          return `
-            <button class="template-card ${activeClass}" data-template-id="${template.id}" type="button">
-              <div class="template-swatch" style="background:${template.background}; --template-accent:${template.accentColor}; --template-panel:${template.panelColor};">
-                ${renderPreviewStrip(template.layout)}
-              </div>
-              <div class="template-meta">
-                <strong>${template.name}</strong>
-                <span>${template.subtitle}</span>
-              </div>
-            </button>
-          `;
-        })
-        .join("")}
-    </div>
-  `;
-
-  const selected = getTemplateById(templateId);
-  nameElement.textContent = selected.name;
-  const templateRow = container.querySelector(".template-row");
-
-  if (templateRow) {
-    templateRow.scrollLeft = scrollLeft;
-  }
-
-  container.querySelectorAll("[data-template-id]").forEach((button) => {
-    button.addEventListener("click", () => {
       const nextTemplateId = button.dataset.templateId;
       setTemplate(nextTemplateId);
-      renderTemplatePicker(container, nameElement, onChange);
+      updateTemplatePickerSelection(container, nameElement, nextTemplateId);
       if (onChange) {
         onChange(nextTemplateId);
       }
     });
+  }
+
+  updateTemplatePickerSelection(container, nameElement, templateId);
+}
+
+function updateTemplatePickerSelection(container, nameElement, templateId) {
+  const selected = getTemplateById(templateId);
+  nameElement.textContent = selected.name;
+
+  container.querySelectorAll("[data-template-id]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.templateId === templateId);
   });
 }
 
 function renderPreviewStrip(layout) {
   const map = {
+    classicStack: ["classic-stack"],
     stackedHero: ["hero", "two-up", "wide"],
     duoSplit: ["two-tall", "two-up"],
     postcard: ["wide", "mid", "two-up"],
@@ -85,6 +89,17 @@ function renderPreviewStrip(layout) {
 }
 
 function renderPreviewBlock(pattern) {
+  if (pattern === "classic-stack") {
+    return `
+      <div class="template-preview-grid-classic">
+        <span class="template-preview-frame"></span>
+        <span class="template-preview-frame"></span>
+        <span class="template-preview-frame"></span>
+        <span class="template-preview-frame"></span>
+      </div>
+    `;
+  }
+
   if (pattern === "hero") {
     return '<span class="template-preview-frame template-preview-frame-hero"></span>';
   }

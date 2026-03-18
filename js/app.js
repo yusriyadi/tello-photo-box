@@ -8,9 +8,7 @@ import { getTemplateById, renderTemplatePicker } from "./templates.js";
 const videoElement = document.querySelector("#cameraFeed");
 const canvasElement = document.querySelector("#captureCanvas");
 const startSessionButton = document.querySelector("#startSessionButton");
-const kioskModeButton = document.querySelector("#kioskModeButton");
 const captureButton = document.querySelector("#captureButton");
-const fullscreenButton = document.querySelector("#fullscreenButton");
 const resultButton = document.querySelector("#resultButton");
 const retakeButton = document.querySelector("#retakeButton");
 const eventNameInput = document.querySelector("#eventNameInput");
@@ -29,7 +27,6 @@ let cameraReady = false;
 renderTemplatePicker(templateGrid, selectedTemplateName);
 syncSessionPreview();
 syncButtons();
-syncFullscreenState();
 
 startSessionButton.addEventListener("click", async () => {
   await primeSound();
@@ -94,14 +91,6 @@ resultButton.addEventListener("click", () => {
   window.location.href = "./result.html";
 });
 
-kioskModeButton.addEventListener("click", async () => {
-  await toggleFullscreen();
-});
-
-fullscreenButton.addEventListener("click", async () => {
-  await toggleFullscreen();
-});
-
 eventNameInput.addEventListener("input", (event) => {
   setEventName(event.target.value);
 });
@@ -117,7 +106,6 @@ retakeButton.addEventListener("click", () => {
 window.addEventListener("beforeunload", () => {
   stopCamera(videoElement);
 });
-document.addEventListener("fullscreenchange", syncFullscreenState);
 
 function syncButtons() {
   captureButton.disabled = !cameraReady || isCapturing;
@@ -148,20 +136,4 @@ function renderThumbs(photos) {
         )
         .join("")
     : Array.from({ length: TOTAL_SHOTS }, () => '<div class="thumb-card"></div>').join("");
-}
-
-async function toggleFullscreen() {
-  if (document.fullscreenElement) {
-    await document.exitFullscreen();
-    return;
-  }
-
-  await document.documentElement.requestFullscreen();
-}
-
-function syncFullscreenState() {
-  const isFullscreen = Boolean(document.fullscreenElement);
-  document.body.classList.toggle("is-kiosk", isFullscreen);
-  fullscreenButton.textContent = isFullscreen ? "Exit Fullscreen" : "Fullscreen";
-  kioskModeButton.textContent = isFullscreen ? "Exit Kiosk" : "Kiosk Mode";
 }

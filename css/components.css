@@ -190,15 +190,21 @@ body.result-themed .button-secondary {
   border: 1px solid transparent;
   background: rgba(255, 255, 255, 0.5);
   cursor: pointer;
-  transition: border-color 160ms ease, transform 160ms ease;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
   scroll-snap-align: start;
+  appearance: none;
+  -webkit-appearance: none;
+  text-align: left;
+  outline: none;
 }
 
 .template-card:hover,
+.template-card:focus-visible,
+.template-card:active,
 .template-card.is-active {
-  margin-top: 2px;
   border-color: rgba(201, 101, 43, 0.35);
-  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 10px 18px rgba(48, 34, 18, 0.08);
 }
 
 .template-swatch {
@@ -292,6 +298,13 @@ body.result-themed .button-secondary {
 }
 
 .template-preview-grid-offset {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.template-preview-grid-classic {
   display: flex;
   flex-direction: column;
   gap: 4px;

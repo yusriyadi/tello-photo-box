@@ -1,5 +1,15 @@
 export const templates = [
   {
+    id: "classic-strip",
+    name: "Classic",
+    subtitle: "Four equal portrait frames",
+    background: "#f6f1e8",
+    panelColor: "#fffdf8",
+    accentColor: "#b98557",
+    textColor: "#2b211a",
+    layout: "classicStack",
+  },
+  {
     id: "aurora",
     name: "Aurora",
     subtitle: "Hero top, soft stack",

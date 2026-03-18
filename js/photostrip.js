@@ -94,6 +94,12 @@ function getFrameRects(layout, width, height, gap) {
   const halfHeight = (height - gap) / 2;
 
   const layouts = {
+    classicStack: [
+      { x: 0, y: 0, width, height: (height - gap * 3) / 4 },
+      { x: 0, y: (height - gap * 3) / 4 + gap, width, height: (height - gap * 3) / 4 },
+      { x: 0, y: ((height - gap * 3) / 4 + gap) * 2, width, height: (height - gap * 3) / 4 },
+      { x: 0, y: ((height - gap * 3) / 4 + gap) * 3, width, height: (height - gap * 3) / 4 },
+    ],
     stackedHero: [
       { x: 0, y: 0, width, height: 235 },
       { x: 0, y: 259, width: halfWidth, height: 215 },
