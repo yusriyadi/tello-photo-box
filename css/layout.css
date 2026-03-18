@@ -29,8 +29,7 @@
 .hero-panel,
 .camera-panel,
 .result-summary,
-.result-preview,
-.result-template-panel {
+.result-preview {
   background: var(--surface);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.65);
@@ -39,8 +38,7 @@
 }
 
 body.result-themed .result-summary,
-body.result-themed .result-preview,
-body.result-themed .result-template-panel {
+body.result-themed .result-preview {
   background: var(--result-surface);
 }
 
@@ -50,8 +48,7 @@ body.result-themed .result-template-panel {
 }
 
 .camera-panel,
-.result-preview,
-.result-template-panel {
+.result-preview {
   padding: 18px;
 }
 

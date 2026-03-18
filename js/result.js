@@ -1,6 +1,6 @@
 import { renderPhotostrip } from "./photostrip.js";
-import { getSession, setTemplate } from "./state.js";
-import { getTemplateById, getTemplates, renderTemplatePicker } from "./templates.js";
+import { getSession } from "./state.js";
+import { getTemplateById } from "./templates.js";
 import { downloadDataUrl, formatSessionDate } from "./utils.js";
 
 const resultCanvas = document.querySelector("#resultCanvas");
@@ -9,9 +9,6 @@ const sessionMeta = document.querySelector("#sessionMeta");
 const resultSummary = document.querySelector("#resultSummary");
 const resultFrame = document.querySelector("#resultFrame");
 const resultEventName = document.querySelector("#resultEventName");
-const resultTemplateGrid = document.querySelector("#resultTemplateGrid");
-const resultSelectedTemplateName = document.querySelector("#resultSelectedTemplateName");
-const randomizeTemplateButton = document.querySelector("#randomizeTemplateButton");
 
 let session = getSession();
 
@@ -21,17 +18,9 @@ if (!session.photos.length) {
   let template = getTemplateById(session.templateId);
   let exportDataUrl = "";
 
-  renderTemplatePicker(resultTemplateGrid, resultSelectedTemplateName, handleTemplateChange);
   applyTemplateTheme(template);
   renderSessionMeta();
   renderResult();
-
-  randomizeTemplateButton.addEventListener("click", async () => {
-    const nextTemplateId = pickRandomTemplateId(template.id);
-    setTemplate(nextTemplateId);
-    await handleTemplateChange(nextTemplateId);
-    renderTemplatePicker(resultTemplateGrid, resultSelectedTemplateName, handleTemplateChange);
-  });
 
   downloadButton.addEventListener("click", () => {
     if (!exportDataUrl) {
@@ -68,14 +57,6 @@ if (!session.photos.length) {
     `;
 
     resultEventName.textContent = session.eventName || "Photostrip export ready";
-  }
-
-  async function handleTemplateChange(templateId) {
-    session = getSession();
-    template = getTemplateById(templateId);
-    applyTemplateTheme(template);
-    renderSessionMeta();
-    await renderResult();
   }
 }
 
@@ -129,10 +110,4 @@ function buildFilename(eventName, templateId) {
     .replace(/^-+|-+$/g, "");
 
   return `${eventSlug || "photostrip"}-${templateId}.png`;
-}
-
-function pickRandomTemplateId(currentTemplateId) {
-  const availableTemplates = getTemplates().filter((template) => template.id !== currentTemplateId);
-  const randomIndex = Math.floor(Math.random() * availableTemplates.length);
-  return availableTemplates[randomIndex]?.id ?? currentTemplateId;
 }
